@@ -4,7 +4,7 @@ import { fuseGems } from "./recipes.js";
 const COLORS = ['R','B','G','Y'];
 
 export class Board {
-  constructor(cols=6, rows=10, canvas) {
+  constructor(cols=6, rows=10, canvas, assets) {
     this.cols=cols; this.rows=rows;
     this.grid = Array.from({length:rows},()=>Array(cols).fill(null));
     this.spawnCol = Math.floor(cols/2);
@@ -15,7 +15,11 @@ export class Board {
     this.drag = {active:false, path:[]};
 
     // UI geometry (for hit-testing drag)
-    this.ox = 48; this.oy = 360; this.cell = 48;
+    this.canvas = canvas;
+    this.ox = 0;
+    this.oy = 0;
+    this.cell = 1;
+    this.assets = assets;
 
     this.pendingFusion = null; // {heal,block,poison,dmg}
     this.didOverflow = false;
@@ -96,11 +100,22 @@ export class Board {
     }
   }
 
+  setLayout({ox, oy, cell}={}){
+    if (typeof ox === "number") this.ox = ox;
+    if (typeof oy === "number") this.oy = oy;
+    if (typeof cell === "number" && cell > 0) this.cell = cell;
+  }
+
   // ---- Selection (exactly 2 orthogonally adjacent settled gems) ----
   toCell(e){
-    const x = e.clientX, y=e.clientY;
-    const c = Math.floor((x - this.ox)/this.cell);
-    const r = Math.floor((y - this.oy)/this.cell);
+    if (!e || !this.canvas) return null;
+    const rect = this.canvas.getBoundingClientRect();
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+    const localX = (e.clientX - rect.left) * scaleX;
+    const localY = (e.clientY - rect.top) * scaleY;
+    const c = Math.floor((localX - this.ox)/this.cell);
+    const r = Math.floor((localY - this.oy)/this.cell);
     return {r,c};
   }
 
@@ -147,9 +162,13 @@ export class Board {
 
   // ---- Drawing ----
   draw(ctx){
-    // tray border
-    ctx.strokeStyle="#9aa1a8";
-    ctx.strokeRect(this.ox-8, this.oy-8, this.cols*this.cell+16, this.rows*this.cell+16);
+    const boardW = this.cols*this.cell;
+    const boardH = this.rows*this.cell;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(this.ox, this.oy, boardW, boardH);
+    ctx.clip();
 
     // settled
     for (let r=0;r<this.rows;r++){
@@ -172,12 +191,25 @@ export class Board {
       if (g) this.drawGem(ctx, g.color, this.ox+p.c*this.cell, this.oy+p.r*this.cell);
     }
     ctx.globalAlpha = 1;
+
+    ctx.restore();
   }
 
   drawGem(ctx, color, x, y, outline=false){
-    const map = {R:"#e45357", B:"#58a8ff", G:"#6bd46b", Y:"#f7c64b"};
-    ctx.fillStyle = map[color] || "#ccc";
-    ctx.fillRect(x+4,y+4,this.cell-8,this.cell-8);
-    if (outline){ ctx.strokeStyle="#fff"; ctx.strokeRect(x+4,y+4,this.cell-8,this.cell-8); }
+    const key = `gem_${color}_small`;
+    const padding = 4;
+    const size = this.cell - padding * 2;
+    const sprite = this.assets?.[key];
+    const drawX = Math.round(x + padding);
+    const drawY = Math.round(y + padding);
+    const drawSize = Math.round(size);
+    if (sprite){
+      ctx.drawImage(sprite, drawX, drawY, drawSize, drawSize);
+    } else {
+      const map = {R:"#e45357", B:"#58a8ff", G:"#6bd46b", Y:"#f7c64b"};
+      ctx.fillStyle = map[color] || "#ccc";
+      ctx.fillRect(drawX,drawY,drawSize,drawSize);
+    }
+    if (outline){ ctx.strokeStyle="#fff"; ctx.strokeRect(drawX,drawY,drawSize,drawSize); }
   }
 }
