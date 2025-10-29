@@ -1,6 +1,8 @@
 import { Board } from "./board.js";
 import { Enemy } from "./enemy.js";
 
+const FRAME_SCALE = 4;
+
 export class Game {
   constructor(canvas, assets) {
     this.canvas = canvas;
@@ -83,15 +85,6 @@ export class Game {
     const boardHeight = this.board.rows * this.board.cell;
 
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    if (this.assets?.frame) {
-      ctx.drawImage(this.assets.frame, 0, 0, this.canvas.width, this.canvas.height);
-    }
-    if (this.assets?.spout) {
-      const spout = this.assets.spout;
-      const sx = (this.canvas.width - spout.width) / 2;
-      ctx.drawImage(spout, sx, 36);
-    }
-
     if (this.assets?.frame) {
       ctx.drawImage(this.assets.frame, frame.x, frame.y, frame.width, frame.height);
     }
@@ -198,15 +191,12 @@ export class Game {
     const frame = this.assets?.frame;
     if (!frame) return defaultLayout;
 
-    const scale = Math.min(
-      this.canvas.width / frame.width,
-      this.canvas.height / frame.height
-    );
+    const scale = FRAME_SCALE;
 
     const drawWidth = frame.width * scale;
     const drawHeight = frame.height * scale;
-    const frameX = (this.canvas.width - drawWidth) / 2;
-    const frameY = (this.canvas.height - drawHeight) / 2;
+    const frameX = Math.floor((this.canvas.width - drawWidth) / 2);
+    const frameY = Math.floor(this.canvas.height - drawHeight);
 
     const baseCell = 9;
     const baseBoardWidth = baseCell * this.board.cols;
@@ -214,8 +204,8 @@ export class Game {
     const boardBaseY = 23;
 
     const boardLayout = {
-      ox: frameX + boardMarginX * scale,
-      oy: frameY + boardBaseY * scale,
+      ox: Math.round(frameX + boardMarginX * scale),
+      oy: Math.round(frameY + boardBaseY * scale),
       cell: baseCell * scale,
     };
 
