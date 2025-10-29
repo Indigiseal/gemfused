@@ -12,6 +12,7 @@ export class Game{
   }
 
   start(){
+    if (this._loopHandle !== null) return;
     let last = performance.now();
     const step = (time)=>{
       const dt = Math.min(0.033, (time - last) / 1000);
@@ -21,6 +22,12 @@ export class Game{
       this._loopHandle = requestAnimationFrame(step);
     };
     this._loopHandle = requestAnimationFrame(step);
+  }
+
+  stop(){
+    if (this._loopHandle === null) return;
+    cancelAnimationFrame(this._loopHandle);
+    this._loopHandle = null;
   }
 
   update(dt){
