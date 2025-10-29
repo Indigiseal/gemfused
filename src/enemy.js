@@ -30,7 +30,11 @@ export class Enemy{
       ctx.fillStyle="#3fa24f"; ctx.beginPath(); ctx.arc(x,y,36,0,Math.PI*2); ctx.fill();
     }
     // hp bar
-    ctx.fillStyle="#333"; ctx.fillRect(x-80,y+48,160,10);
-    ctx.fillStyle="#f55"; ctx.fillRect(x-80,y+48,160*(this.hp/this.maxHp),10);
+    const barW = 160 * scale;
+    const barH = 10 * scale;
+    const barX = x - barW/2;
+    const barY = y + 48 * scale;
+    ctx.fillStyle="#333"; ctx.fillRect(barX, barY, barW, barH);
+    ctx.fillStyle="#f55"; ctx.fillRect(barX, barY, barW*(this.hp/this.maxHp), barH);
   }
 }

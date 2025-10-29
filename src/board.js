@@ -97,11 +97,22 @@ export class Board {
     }
   }
 
+  setLayout({ox, oy, cell}={}){
+    if (typeof ox === "number") this.ox = ox;
+    if (typeof oy === "number") this.oy = oy;
+    if (typeof cell === "number" && cell > 0) this.cell = cell;
+  }
+
   // ---- Selection (exactly 2 orthogonally adjacent settled gems) ----
   toCell(e){
-    const x = e.clientX, y=e.clientY;
-    const c = Math.floor((x - this.ox)/this.cell);
-    const r = Math.floor((y - this.oy)/this.cell);
+    if (!e || !this.canvas) return null;
+    const rect = this.canvas.getBoundingClientRect();
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+    const localX = (e.clientX - rect.left) * scaleX;
+    const localY = (e.clientY - rect.top) * scaleY;
+    const c = Math.floor((localX - this.ox)/this.cell);
+    const r = Math.floor((localY - this.oy)/this.cell);
     return {r,c};
   }
 
@@ -148,9 +159,13 @@ export class Board {
 
   // ---- Drawing ----
   draw(ctx){
-    // tray border
-    ctx.strokeStyle="#9aa1a8";
-    ctx.strokeRect(this.ox-8, this.oy-8, this.cols*this.cell+16, this.rows*this.cell+16);
+    const boardW = this.cols*this.cell;
+    const boardH = this.rows*this.cell;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(this.ox, this.oy, boardW, boardH);
+    ctx.clip();
 
     // settled
     for (let r=0;r<this.rows;r++){
@@ -173,6 +188,8 @@ export class Board {
       if (g) this.drawGem(ctx, g.color, this.ox+p.c*this.cell, this.oy+p.r*this.cell);
     }
     ctx.globalAlpha = 1;
+
+    ctx.restore();
   }
 
   drawGem(ctx, color, x, y, outline=false){
