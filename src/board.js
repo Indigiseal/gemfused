@@ -16,6 +16,7 @@ export class Board {
 
     // UI geometry (for hit-testing drag)
     this.ox = 48; this.oy = 360; this.cell = 48;
+    this.canvas = canvas;
     this.assets = assets;
 
     this.pendingFusion = null; // {heal,block,poison,dmg}

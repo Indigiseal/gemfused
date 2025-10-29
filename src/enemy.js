@@ -20,7 +20,7 @@ export class Enemy{
   }
   damage(n){ this.hp -= n; if (this.hp<=0) this.reset(); }
   windupRatio(){ return this.t/this.wind; }
-  draw(ctx,x,y){
+  draw(ctx, x, y, scale = 1){
     const slime = this.assets?.slime;
     if (slime){
       const dx = x - slime.width/2;
