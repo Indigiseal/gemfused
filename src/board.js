@@ -4,7 +4,7 @@ import { fuseGems } from "./recipes.js";
 const COLORS = ['R','B','G','Y'];
 
 export class Board {
-  constructor(cols=6, rows=10, canvas) {
+  constructor(cols=6, rows=10, canvas, assets) {
     this.cols=cols; this.rows=rows;
     this.grid = Array.from({length:rows},()=>Array(cols).fill(null));
     this.spawnCol = Math.floor(cols/2);
@@ -16,6 +16,7 @@ export class Board {
 
     // UI geometry (for hit-testing drag)
     this.ox = 48; this.oy = 360; this.cell = 48;
+    this.assets = assets;
 
     this.pendingFusion = null; // {heal,block,poison,dmg}
     this.didOverflow = false;
@@ -175,9 +176,17 @@ export class Board {
   }
 
   drawGem(ctx, color, x, y, outline=false){
-    const map = {R:"#e45357", B:"#58a8ff", G:"#6bd46b", Y:"#f7c64b"};
-    ctx.fillStyle = map[color] || "#ccc";
-    ctx.fillRect(x+4,y+4,this.cell-8,this.cell-8);
-    if (outline){ ctx.strokeStyle="#fff"; ctx.strokeRect(x+4,y+4,this.cell-8,this.cell-8); }
+    const key = `gem_${color}_small`;
+    const padding = 4;
+    const size = this.cell - padding * 2;
+    const sprite = this.assets?.[key];
+    if (sprite){
+      ctx.drawImage(sprite, x + padding, y + padding, size, size);
+    } else {
+      const map = {R:"#e45357", B:"#58a8ff", G:"#6bd46b", Y:"#f7c64b"};
+      ctx.fillStyle = map[color] || "#ccc";
+      ctx.fillRect(x+padding,y+padding,size,size);
+    }
+    if (outline){ ctx.strokeStyle="#fff"; ctx.strokeRect(x+padding,y+padding,size,size); }
   }
 }
