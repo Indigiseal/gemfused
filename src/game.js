@@ -83,6 +83,14 @@ export class Game {
     const boardHeight = this.board.rows * this.board.cell;
 
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    if (this.assets?.frame) {
+      ctx.drawImage(this.assets.frame, 0, 0, this.canvas.width, this.canvas.height);
+    }
+    if (this.assets?.spout) {
+      const spout = this.assets.spout;
+      const sx = (this.canvas.width - spout.width) / 2;
+      ctx.drawImage(spout, sx, 36);
+    }
 
     if (this.assets?.frame) {
       ctx.drawImage(this.assets.frame, frame.x, frame.y, frame.width, frame.height);
@@ -131,6 +139,14 @@ export class Game {
     const blockHeight = 10 * frameScale;
     const hudWidth = 200 * frameScale;
 
+    if (this.assets?.button_drop) {
+      const button = this.assets.button_drop;
+      const bx = this.canvas.width - button.width - 40;
+      const by = this.canvas.height - button.height - 40;
+      ctx.drawImage(button, bx, by);
+    }
+
+    // UI bars
     const bar = (bx, by, w, h, ratio, color) => {
       ctx.fillStyle = "#333";
       ctx.fillRect(bx, by, w, h);

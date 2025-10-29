@@ -20,17 +20,14 @@ export class Enemy{
   }
   damage(n){ this.hp -= n; if (this.hp<=0) this.reset(); }
   windupRatio(){ return this.t/this.wind; }
-  draw(ctx,x,y,scale=1){
+  draw(ctx,x,y){
     const slime = this.assets?.slime;
     if (slime){
-      const w = slime.width * scale;
-      const h = slime.height * scale;
-      const dx = x - w/2;
-      const dy = y - h/2;
-      ctx.drawImage(slime, dx, dy, w, h);
+      const dx = x - slime.width/2;
+      const dy = y - slime.height/2;
+      ctx.drawImage(slime, dx, dy);
     } else {
-      const radius = 36 * scale;
-      ctx.fillStyle="#3fa24f"; ctx.beginPath(); ctx.arc(x,y,radius,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle="#3fa24f"; ctx.beginPath(); ctx.arc(x,y,36,0,Math.PI*2); ctx.fill();
     }
     // hp bar
     const barW = 160 * scale;

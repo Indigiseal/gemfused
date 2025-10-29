@@ -15,10 +15,7 @@ export class Board {
     this.drag = {active:false, path:[]};
 
     // UI geometry (for hit-testing drag)
-    this.canvas = canvas;
-    this.ox = 0;
-    this.oy = 0;
-    this.cell = 1;
+    this.ox = 48; this.oy = 360; this.cell = 48;
     this.assets = assets;
 
     this.pendingFusion = null; // {heal,block,poison,dmg}
@@ -200,16 +197,13 @@ export class Board {
     const padding = 4;
     const size = this.cell - padding * 2;
     const sprite = this.assets?.[key];
-    const drawX = Math.round(x + padding);
-    const drawY = Math.round(y + padding);
-    const drawSize = Math.round(size);
     if (sprite){
-      ctx.drawImage(sprite, drawX, drawY, drawSize, drawSize);
+      ctx.drawImage(sprite, x + padding, y + padding, size, size);
     } else {
       const map = {R:"#e45357", B:"#58a8ff", G:"#6bd46b", Y:"#f7c64b"};
       ctx.fillStyle = map[color] || "#ccc";
-      ctx.fillRect(drawX,drawY,drawSize,drawSize);
+      ctx.fillRect(x+padding,y+padding,size,size);
     }
-    if (outline){ ctx.strokeStyle="#fff"; ctx.strokeRect(drawX,drawY,drawSize,drawSize); }
+    if (outline){ ctx.strokeStyle="#fff"; ctx.strokeRect(x+padding,y+padding,size,size); }
   }
 }
