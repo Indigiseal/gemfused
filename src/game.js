@@ -2,12 +2,14 @@ import { Board } from "./board.js";
 import { Enemy } from "./enemy.js";
 
 export class Game {
-  constructor(canvas) {
+  constructor(canvas, assets) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
-    this.board = new Board(6, 10, canvas);
+    this.ctx.imageSmoothingEnabled = false;
+    this.assets = assets;
+    this.board = new Board(6, 10, canvas, assets);
     this.player = { hp: 30, maxHp: 30, block: 0 };
-    this.enemy = new Enemy();
+    this.enemy = new Enemy(assets);
     this._loopHandle = null;
   }
 
@@ -59,6 +61,14 @@ export class Game {
 
   draw(ctx = this.ctx) {
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    if (this.assets?.frame) {
+      ctx.drawImage(this.assets.frame, 0, 0, this.canvas.width, this.canvas.height);
+    }
+    if (this.assets?.spout) {
+      const spout = this.assets.spout;
+      const sx = (this.canvas.width - spout.width) / 2;
+      ctx.drawImage(spout, sx, 36);
+    }
 
     // enemy area
     this.enemy.draw(ctx, this.canvas.width / 2, 180);
@@ -75,6 +85,13 @@ export class Game {
 
     // board
     this.board.draw(ctx);
+
+    if (this.assets?.button_drop) {
+      const button = this.assets.button_drop;
+      const bx = this.canvas.width - button.width - 40;
+      const by = this.canvas.height - button.height - 40;
+      ctx.drawImage(button, bx, by);
+    }
 
     // UI bars
     const bar = (bx, by, w, h, ratio, color) => {

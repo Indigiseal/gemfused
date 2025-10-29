@@ -1,5 +1,5 @@
 export class Enemy{
-  constructor(){ this.reset(); }
+  constructor(assets){ this.assets = assets; this.reset(); }
   reset(){
     this.maxHp=40; this.hp=40;
     this.wind=3.0; this.t=0;       // wind-up seconds
@@ -21,7 +21,14 @@ export class Enemy{
   damage(n){ this.hp -= n; if (this.hp<=0) this.reset(); }
   windupRatio(){ return this.t/this.wind; }
   draw(ctx,x,y){
-    ctx.fillStyle="#3fa24f"; ctx.beginPath(); ctx.arc(x,y,36,0,Math.PI*2); ctx.fill();
+    const slime = this.assets?.slime;
+    if (slime){
+      const dx = x - slime.width/2;
+      const dy = y - slime.height/2;
+      ctx.drawImage(slime, dx, dy);
+    } else {
+      ctx.fillStyle="#3fa24f"; ctx.beginPath(); ctx.arc(x,y,36,0,Math.PI*2); ctx.fill();
+    }
     // hp bar
     ctx.fillStyle="#333"; ctx.fillRect(x-80,y+48,160,10);
     ctx.fillStyle="#f55"; ctx.fillRect(x-80,y+48,160*(this.hp/this.maxHp),10);
